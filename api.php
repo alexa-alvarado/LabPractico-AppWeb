@@ -1,10 +1,10 @@
 <?php
-// Configuración PDO para PostgreSQL
-$host = 'localhost'; 
+// Configuración PDO para PostgreSQL en Neon
+$host = 'ep-crimson-butterfly-b4pb78nh-pooler.c-6.us-east-2.aws.neon.tech'; 
 $port = '5432';
-$dbname = 'gestion_documentos_db';
-$username = 'postgres';
-$password = 'Alexa22';
+$dbname = 'neondb';
+$username = 'neondb_owner';
+$password = 'npg_mN7oO4RwrcGP';
 
 header('Content-Type: application/json');
 
