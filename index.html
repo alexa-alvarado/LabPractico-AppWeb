@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestión de Documentos</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1e40af;
+      --primary-hover: #1e3a8a;
+      --secondary-bg: #f8fafc;
+      --sidebar-width: 260px;
+      --sidebar-bg: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f1f5f9; color: #1e293b; min-height: 100vh; overflow-x: hidden; }
+
+    /* Sidebar Navigation */
+    .app-sidebar {
+      width: var(--sidebar-width); background-color: var(--sidebar-bg); color: #94a3b8;
+      min-height: 100vh; transition: all 0.3s ease; z-index: 1040;
+    }
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem; font-size: 1.15rem; font-weight: 700; color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; gap: 0.75rem;
+    }
+    .sidebar-nav { padding: 1rem 0.75rem; list-style: none; margin: 0; }
+    .nav-header { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; padding: 0.75rem 1rem 0.25rem; }
+    .nav-item { margin-bottom: 0.25rem; }
+    .nav-link-custom { display: flex; align-items: center; gap: 0.85rem; padding: 0.7rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 0.5rem; font-size: 0.925rem; font-weight: 500; transition: all 0.2s ease; cursor: pointer; }
+    .nav-link-custom:hover { color: #ffffff; background-color: rgba(255, 255, 255, 0.06); }
+    .nav-link-custom.active { color: #ffffff; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+    /* Main Content */
+    .app-main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
+    .top-navbar { height: 68px; background-color: #ffffff; border-bottom: 1px solid var(--border-color); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1030; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); }
+    
+    .search-input-group { max-width: 420px; width: 100%; }
+    .search-input-group .form-control { background-color: #f8fafc; border-color: #e2e8f0; font-size: 0.9rem; padding-left: 2.5rem; border-radius: 0.5rem; }
+    .search-input-group .search-icon { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; z-index: 5; }
+
+    /* Cards */
+    .dashboard-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+    .stat-card { padding: 1.25rem; border-left: 4px solid #2563eb; }
+    .stat-card.warning-stat { border-left-color: #f59e0b; }
+    .stat-card.success-stat { border-left-color: #10b981; }
+    .stat-card.info-stat { border-left-color: #06b6d4; }
+
+    /* Badges */
+    .badge-status-recibido { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 600; font-size: 0.785rem; padding: 0.35rem 0.75rem; border-radius: 9999px; }
+    .badge-status-proceso { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-weight: 600; font-size: 0.785rem; padding: 0.35rem 0.75rem; border-radius: 9999px; }
+    .badge-status-atendido { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 600; font-size: 0.785rem; padding: 0.35rem 0.75rem; border-radius: 9999px; }
+
+    /* Tables */
+    .custom-table th { background-color: #f8fafc; color: #475569; font-size: 0.785rem; text-transform: uppercase; font-weight: 600; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border-color); }
+    .custom-table td { padding: 1rem; vertical-align: middle; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; }
+    .action-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s; }
+    .action-btn:hover { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+    /* File Upload */
+    .file-upload-box { border: 2px dashed #cbd5e1; border-radius: 0.75rem; padding: 1.5rem; text-align: center; background-color: #f8fafc; transition: all 0.2s; }
+    .file-upload-box:hover { border-color: #2563eb; background-color: #f0f7ff; }
+    .upload-action-btn { padding: 0.65rem 1.25rem; font-weight: 500; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.5rem; cursor: pointer; }
+
+    /* Mobile */
+    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); z-index: 1035; }
+    @media (max-width: 991.98px) {
+      .app-sidebar { position: fixed; left: -260px; top: 0; bottom: 0; }
+      .app-sidebar.show { left: 0; }
+      .sidebar-backdrop.show { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="d-flex w-100">
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <i class="bi bi-file-earmark-lock2-fill fs-4 text-primary"></i>
+        <span>DocuOffice Pro</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-header">Navegación</li>
+        <li class="nav-item">
+          <a class="nav-link-custom active" data-view="dashboard" id="btnNavDashboard">
+            <i class="bi bi-grid-1x2-fill"></i><span>Panel de Control</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-custom" data-view="register" id="btnNavRegister">
+            <i class="bi bi-plus-circle-fill"></i><span>Nuevo Documento</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-custom" data-view="documents" id="btnNavDocuments">
+            <i class="bi bi-archive-fill"></i><span>Documentos</span>
+            <span class="badge bg-primary ms-auto rounded-pill" id="badgeTotalDocs">0</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <header class="top-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-light d-lg-none p-2 border" id="btnToggleSidebar"><i class="bi bi-list fs-5"></i></button>
+          <div class="d-none d-sm-block">
+            <h5 class="mb-0 fw-bold text-dark" id="pageHeaderTitle">Gestión de Documentos</h5>
+          </div>
+        </div>
+        <div class="search-input-group position-relative d-none d-md-block">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="form-control" id="globalSearchInput" placeholder="Buscar documentos...">
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-primary btn-sm px-3 py-2 fw-semibold" id="btnQuickNewDoc">
+            <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline">Registrar Oficio</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="p-3 p-lg-4">
+        
+        <!-- VISTA PANEL -->
+        <div id="viewDashboard" class="view-section">
+          <!-- Métricas -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="dashboard-card stat-card">
+                <span class="text-muted small fw-semibold">TOTAL DE OFICIOS</span>
+                <h3 class="fw-bold mb-0 text-dark mt-1" id="statTotalCount">0</h3>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="dashboard-card stat-card success-stat">
+                <span class="text-muted small fw-semibold">RECIBIDOS</span>
+                <h3 class="fw-bold mb-0 text-success mt-1" id="statRecibidosCount">0</h3>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="dashboard-card stat-card warning-stat">
+                <span class="text-muted small fw-semibold">EN PROCESO</span>
+                <h3 class="fw-bold mb-0 text-warning mt-1" id="statProcesoCount">0</h3>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="dashboard-card stat-card info-stat">
+                <span class="text-muted small fw-semibold">ATENDIDOS</span>
+                <h3 class="fw-bold mb-0 text-primary mt-1" id="statAtendidosCount">0</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Datos -->
+          <div class="dashboard-card overflow-hidden">
+            <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white">
+              <div>
+                <h6 class="mb-1 fw-bold text-dark">Listado de Correspondencia</h6>
+                <p class="text-muted small mb-0" id="tableRecordSummary">Cargando registros...</p>
+              </div>
+              <button class="btn btn-sm btn-primary" id="btnGoToForm"><i class="bi bi-plus-circle"></i> Nuevo Oficio</button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table custom-table mb-0 align-middle" id="documentsTable">
+                <thead>
+                  <tr>
+                    <th>No. Oficio</th>
+                    <th>Fecha</th>
+                    <th>Asunto</th>
+                    <th>Remitente</th>
+                    <th>Destinatario</th>
+                    <th class="text-center">Estatus</th>
+                    <th class="text-center" style="width: 140px;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="documentsTableBody">
+                  <!-- Llenado por AJAX -->
+                </tbody>
+              </table>
+            </div>
+            
+            <div id="noDataAlert" class="text-center py-5 d-none">
+              <i class="bi bi-folder-x fs-1 text-muted"></i>
+              <h6 class="mt-2 text-dark fw-bold">No hay documentos registrados</h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISTA FORMULARIO REGISTRO -->
+        <div id="viewRegister" class="view-section d-none">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+              <button class="btn btn-outline-secondary btn-sm mb-3" id="btnBackToDashboard">
+                <i class="bi bi-arrow-left"></i> Volver al Listado
+              </button>
+              
+              <div class="dashboard-card p-4 shadow-sm">
+                <h4 class="fw-bold mb-3 text-dark text-center">Registro de Documento</h4>
+                
+                <form id="documentForm" novalidate>
+                  <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label small fw-semibold">No. de Oficio <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="docOficio" required>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label small fw-semibold">Fecha <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" id="docFecha" required>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Asunto <span class="text-danger">*</span></label>
+                      <textarea class="form-control" id="docAsunto" rows="2" required></textarea>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label small fw-semibold">Remitente <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="docRemitente" required>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                      <label class="form-label small fw-semibold">Destinatario <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="docDestinatario" required>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Estatus <span class="text-danger">*</span></label>
+                      <select class="form-select" id="docEstatus" required>
+                        <option value="Recibido">Recibido</option>
+                        <option value="En proceso">En proceso</option>
+                        <option value="Atendido">Atendido</option>
+                      </select>
+                    </div>
+                    
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Adjuntar PDF o Foto <span class="text-danger">*</span></label>
+                      <input type="file" id="inputDocFile" accept="application/pdf, image/*" class="d-none">
+                      <div class="file-upload-box">
+                        <button type="button" class="btn btn-outline-primary upload-action-btn" onclick="$('#inputDocFile').trigger('click')">
+                          <i class="bi bi-upload"></i> Seleccionar Archivo
+                        </button>
+                        <div id="fileSelectionFeedback" class="mt-3 p-2 bg-white rounded border d-none">
+                          <span class="fw-semibold small" id="selectedFileName"></span>
+                          <button type="button" class="btn btn-sm text-danger ms-2" id="btnRemoveFile"><i class="bi bi-x-circle-fill"></i></button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Guardar Documento</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let documents = [];
+    let currentSelectedFile = null;
+
+    // Toast Notifications
+    function showToast(message, isSuccess = true) {
+      const toastEl = $('#liveToast');
+      $('#toastMessage').text(message);
+      toastEl.removeClass('bg-success bg-danger').addClass(isSuccess ? 'bg-success' : 'bg-danger');
+      new bootstrap.Toast(toastEl[0]).show();
+    }
+
+    // Render Status Badge
+    function renderStatusBadge(status) {
+      if (status === "Recibido") return `<span class="badge badge-status-recibido">Recibido</span>`;
+      if (status === "En proceso") return `<span class="badge badge-status-proceso">En proceso</span>`;
+      if (status === "Atendido") return `<span class="badge badge-status-atendido">Atendido</span>`;
+      return `<span class="badge bg-secondary">${status}</span>`;
+    }
+
+    // Update Dashboard Metrics
+    function updateMetrics() {
+      $('#statTotalCount, #badgeTotalDocs').text(documents.length);
+      $('#statRecibidosCount').text(documents.filter(d => d.estatus === "Recibido").length);
+      $('#statProcesoCount').text(documents.filter(d => d.estatus === "En proceso").length);
+      $('#statAtendidosCount').text(documents.filter(d => d.estatus === "Atendido").length);
+    }
+
+    // Render Table
+    function renderTable(data = documents) {
+      const tbody = $('#documentsTableBody');
+      tbody.empty();
+
+      if (data.length === 0) {
+        $('#noDataAlert').removeClass('d-none');
+        $('#documentsTable').addClass('d-none');
+        return;
+      }
+
+      $('#noDataAlert').addClass('d-none');
+      $('#documentsTable').removeClass('d-none');
+
+      data.forEach(doc => {
+        tbody.append(`
+          <tr>
+            <td class="fw-bold text-primary">${doc.oficio}</td>
+            <td>${doc.fecha}</td>
+            <td>${doc.asunto}<br><small class="text-muted"><i class="bi bi-paperclip"></i> ${doc.archivo}</small></td>
+            <td>${doc.remitente}</td>
+            <td>${doc.destinatario}</td>
+            <td class="text-center">${renderStatusBadge(doc.estatus)}</td>
+            <td class="text-center">
+              <button class="action-btn btn-view" title="Ver" data-file="${doc.archivo}"><i class="bi bi-eye"></i></button>
+              <button class="action-btn btn-download" title="Descargar" data-file="${doc.archivo}"><i class="bi bi-download"></i></button>
+            </td>
+          </tr>
+        `);
+      });
+      $('#tableRecordSummary').text(`Mostrando ${data.length} documentos`);
+    }
+
+    // Fetch documents from PostgreSQL via api.php
+    function loadDocuments() {
+      $.ajax({
+        url: 'api.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          documents = data.map(d => ({
+            id: d.id_documento,
+            oficio: d.no_oficio,
+            fecha: d.fecha,
+            asunto: d.asunto,
+            remitente: d.remitente,
+            destinatario: d.destinatario,
+            estatus: d.estatus,
+            archivo: d.archivo_pdf
+          }));
+          renderTable();
+          updateMetrics();
+        },
+        error: function() {
+          showToast('Error al conectar con la base de datos', false);
+        }
+      });
+    }
+
+    // View Switching Logic
+    function switchView(view) {
+      $('.nav-link-custom').removeClass('active');
+      if (view === 'register') {
+        $('#viewDashboard').addClass('d-none');
+        $('#viewRegister').removeClass('d-none');
+        $('#btnNavRegister').addClass('active');
+        $('#docFecha').val(new Date().toISOString().split('T')[0]);
+      } else {
+        $('#viewRegister').addClass('d-none');
+        $('#viewDashboard').removeClass('d-none');
+        $('#btnNavDashboard').addClass('active');
+      }
+      $('#appSidebar, #sidebarBackdrop').removeClass('show');
+    }
+
+    $(document).ready(function() {
+      // Carga inicial
+      loadDocuments();
+
+      // UI Events
+      $('#btnToggleSidebar').click(() => $('#appSidebar, #sidebarBackdrop').toggleClass('show'));
+      $('#sidebarBackdrop').click(() => $('#appSidebar, #sidebarBackdrop').removeClass('show'));
+      $('#btnNavDashboard, #btnBackToDashboard, #btnNavDocuments').click(() => switchView('dashboard'));
+      $('#btnNavRegister, #btnQuickNewDoc, #btnGoToForm').click(() => switchView('register'));
+
+      // File Selection
+      $('#inputDocFile').on('change', function(e) {
+        if (e.target.files[0]) {
+          currentSelectedFile = e.target.files[0];
+          $('#selectedFileName').text(currentSelectedFile.name);
+          $('#fileSelectionFeedback').removeClass('d-none');
+        }
+      });
+      $('#btnRemoveFile').click(function() {
+        currentSelectedFile = null;
+        $('#inputDocFile').val('');
+        $('#fileSelectionFeedback').addClass('d-none');
+      });
+
+      // Submit Form using AJAX and FormData
+      $('#documentForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!currentSelectedFile) {
+          showToast('Debes adjuntar un archivo PDF o imagen', false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('no_oficio', $('#docOficio').val());
+        formData.append('fecha', $('#docFecha').val());
+        formData.append('asunto', $('#docAsunto').val());
+        formData.append('remitente', $('#docRemitente').val());
+        formData.append('destinatario', $('#docDestinatario').val());
+        formData.append('estatus', $('#docEstatus').val());
+        formData.append('documento_file', currentSelectedFile);
+
+        const btn = $(this).find('button[type="submit"]');
+        btn.prop('disabled', true).text('Guardando...');
+
+        $.ajax({
+          url: 'api.php',
+          method: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(res) {
+            if(res.status === 'success') {
+              showToast(res.message);
+              $('#documentForm')[0].reset();
+              $('#btnRemoveFile').click();
+              loadDocuments();
+              setTimeout(() => switchView('dashboard'), 800);
+            } else {
+              showToast(res.message, false);
+            }
+          },
+          error: function() {
+            showToast('Error de conexión al servidor', false);
+          },
+          complete: function() {
+            btn.prop('disabled', false).text('Guardar Documento');
+          }
+        });
+      });
+
+      // Action: Ver Archivo desde la carpeta pdf/
+      $(document).on('click', '.btn-view', function() {
+        const file = $(this).data('file');
+        window.open('pdf/' + file, '_blank');
+      });
+
+      // Action: Descargar Archivo desde la carpeta pdf/
+      $(document).on('click', '.btn-download', function() {
+        const file = $(this).data('file');
+        const link = document.createElement('a');
+        link.href = 'pdf/' + file;
+        link.download = file;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // Búsqueda rápida
+      $('#globalSearchInput').on('keyup', function() {
+        const term = $(this).val().toLowerCase();
+        const filtered = documents.filter(d => 
+          d.oficio.toLowerCase().includes(term) || 
+          d.asunto.toLowerCase().includes(term) || 
+          d.remitente.toLowerCase().includes(term)
+        );
+        renderTable(filtered);
+      });
+    });
+  </script>
+</body>
+</html>
