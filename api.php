@@ -9,7 +9,7 @@ $password = 'npg_mN7oO4RwrcGP';
 header('Content-Type: application/json');
 
 try {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
     $pdo = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     
     // MÉTODO POST: Guardar documento
