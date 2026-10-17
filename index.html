@@ -350,7 +350,7 @@
     // Fetch documents from PostgreSQL via api.php
     function loadDocuments() {
       $.ajax({
-        url: 'api.php',
+        url: 'api/api.php',
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -435,7 +435,7 @@
         btn.prop('disabled', true).text('Guardando...');
 
         $.ajax({
-          url: 'api.php',
+          url: 'api/api.php',
           method: 'POST',
           data: formData,
           contentType: false,
