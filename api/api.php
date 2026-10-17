@@ -7,7 +7,7 @@ $host = 'ep-crimson-butterfly-b4pb78nh-pooler.c-6.us-east-2.aws.neon.tech';
 $port = '5432';
 $dbname = 'neondb';
 $username = 'neondb_owner';
-$password = 'npg_mN7oO4RwrcGP';
+$password = 'npg_mN7oO4RWrcGP';
 
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
